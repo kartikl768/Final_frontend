@@ -5,15 +5,13 @@ export interface LoginRequest {
   password: string;
 }
 
-
 export interface RegisterRequest {
+  email: string;
+  password: string;
   firstName: string;
   lastName: string;
-  email: string;
-  phone?: string;
-  password: string;
+  phone: string;
 }
-
 
 export interface AuthResponse {
   token: string;
@@ -34,13 +32,3 @@ export const registerUser = async (userData: RegisterRequest): Promise<AuthRespo
   const res = await api.post<AuthResponse>('/Auth/register', userData);
   return res.data;
 };
-
-
-// export const registerCandidate = async (data: RegisterCandidateRequest) => {
-//   const payload = {
-//     ...data,
-//     role: 3, 
-//   };
-//   const res = await api.post<AuthResponse>(`/Auth/register`, payload);
-//   return res.data;
-// };

@@ -65,7 +65,7 @@ const JobTable: React.FC<Props> = ({ jobRequirements, onEdit, onDelete }) => {
                           </div>
                         </td>
                         <td>
-                          <StatusBadge status={job.status} /> 
+                          <StatusBadge status={job.status} />
                         </td>
                         <td>
                           <div className="d-flex align-items-center">

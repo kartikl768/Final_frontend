@@ -1,20 +1,19 @@
 import React from "react";
+import { Clock, CheckCircle, XCircle } from "lucide-react";
 
-const StatusBadge: React.FC<{ status: number }> = ({ status }) => {
-  // Define a mapping of status numbers to their text and styling
-  const statusConfig = {
-    0: { text: "Pending", class: "bg-warning text-dark" },
-    1: { text: "Approved", class: "bg-success" },
-    2: { text: "Rejected", class: "bg-danger" },
+const StatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const statusConfig: Record<string, { class: string; icon: any }> = {
+    Pending: { class: "bg-warning text-dark", icon: Clock },
+    Approved: { class: "bg-success", icon: CheckCircle },
+    Rejected: { class: "bg-danger", icon: XCircle },
   };
 
-  // Look up the configuration based on the status prop.
-  // Use a fallback for any unexpected status value.
-  const config = statusConfig[status as keyof typeof statusConfig] || { text: "Unknown", class: "bg-secondary" };
-
+  const config = statusConfig[status] || statusConfig["Pending"];
+  const Icon = config.icon;
   return (
     <span className={`badge ${config.class} d-inline-flex align-items-center`}>
-      {config.text}
+      <Icon size={14} className="me-1" />
+      {status}
     </span>
   );
 };

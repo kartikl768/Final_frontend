@@ -27,14 +27,13 @@ const Navbar: React.FC = () => {
     }
     
     // HR role (1 or 'HR')
-    if (role == 1 || role === 'HR') {
+    if (role === 1 || role === 'HR') {
       return [
         { name: 'Dashboard', path: '/hr/dashboard', active: location.pathname === '/hr/dashboard' },
         { name: 'Approvals', path: '/hr/approvals', active: location.pathname === '/hr/approvals' },
         { name: 'Users', path: '/hr/users', active: location.pathname === '/hr/users' },
         { name: 'Interviews', path: '/hr/interviews', active: location.pathname === '/hr/interviews' },
-        // { name: 'Applications', path: '/hr/applications', active: location.pathname.startsWith('/hr/applications') || location.pathname.includes('/applicants') },
-        // { name: 'Jobs', path: '/hr/jobs', active: location.pathname.startsWith('/hr/jobs') || location.pathname.includes('/applicants') },
+        { name: 'Jobs', path: '/hr/jobs', active: location.pathname.startsWith('/hr/jobs') || location.pathname.includes('/applicants') },
       ];
     }
     
@@ -42,13 +41,7 @@ const Navbar: React.FC = () => {
     if (role === 2 || role === 'Interviewer') {
       return [
         { name: 'Dashboard', path: '/interviewer', active: location.pathname === '/interviewer' },
-        { name: 'Interviews', path: '/interviewer/interviews', active: location.pathname === '/interviewer/interviews' },
-        
-{ name: 'FeedBack',
-  path: '/interviews/feedback',
-  active: location.pathname.startsWith('/interviews/feedback')
-}
-
+        { name: 'Interviews', path: '/interviewer/interviews', active: location.pathname === '/interviewer/interviews' }
       ];
     }
     
@@ -104,11 +97,11 @@ const Navbar: React.FC = () => {
                     style={{ width: '32px', height: '32px' }}
                   >
                     <span className="text-white fw-bold">
-                      {user.Email?.charAt(0).toUpperCase()}
+                      {user.FirstName?.charAt(0)}{user.LastName?.charAt(0)}
                     </span>
                   </div>
                   <div className="text-start">
-                    <div className="fw-bold">{user.Email && user.Email.split('@')[0].charAt(0).toUpperCase()+user.Email.split('@')[0].slice(1)} </div>
+                    <div className="fw-bold">{user.FirstName} {user.LastName}</div>
                     <small className="text-white">
                       {user.Role === 0 ? 'Manager' : 
                        user.Role === 1 ? 'HR' : 

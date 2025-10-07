@@ -7,18 +7,18 @@ export default function Approvals() {
   const { pendingApprovals, approveJobRequirement, rejectJobRequirement, approvalsLoading } = useHR();
   const [selectedJob, setSelectedJob] = useState<any>(null);
   const [showModal, setShowModal] = useState(false);
-  const [action, setAction] = useState<'1' | '2'>('1');
+  const [action, setAction] = useState<'approve' | 'reject'>('approve');
   const [comments, setComments] = useState('');
 
   const handleApprove = async (job: any) => {
     setSelectedJob(job);
-    setAction('1');
+    setAction('approve');
     setShowModal(true);
   };
 
   const handleReject = async (job: any) => {
     setSelectedJob(job);
-    setAction('2');
+    setAction('reject');
     setShowModal(true);
   };
 
@@ -26,10 +26,10 @@ export default function Approvals() {
     if (!selectedJob) return;
 
     try {
-      if (action === '1') {
-        await approveJobRequirement(selectedJob.requirementId, 1);
+      if (action === 'approve') {
+        await approveJobRequirement(selectedJob.requirementId, comments);
       } else {
-        await rejectJobRequirement(selectedJob.requirementId, 2);
+        await rejectJobRequirement(selectedJob.requirementId, comments);
       }
       setShowModal(false);
       setComments('');

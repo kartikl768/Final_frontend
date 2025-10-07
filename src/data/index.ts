@@ -28,39 +28,19 @@ export interface User {
   }
   
   export interface Job {
-    jobId: number;
-    requirementId: number;
-    hrId: number;
-    jobTitle: string;
-    jobDescription: string;
-    yearsExperience: number;
-    requiredSkills: string[];
-    numberOfOpenings: number;
-    numberOfRounds: number;
-    status: 'Active' | 'Inactive' | 'Closed';
-    createdAt: string;
-    updatedAt: string;
+    JobId: number;
+    JobTitle: string;
+    JobDescription: string;
+    YearsExperience: number;
+    RequiredSkills: string[]
+    NumberOfOpenings: number;
+    NumberOfRounds: number;
+    Status: 'Active' | 'Inactive' | 'Closed' | 'Approved';
   }
-  export interface JobCreateDTO {
-  requirementId: number;
-  jobTitle: string;
-  jobDescription: string;
-  yearsExperience: number;
-  requiredSkills: string[];
-  numberOfOpenings: number;
-  numberOfRounds: number;
-}
   
   export interface Application {
     applicationId: number;
-    job: {
-      jobId: number;
-      jobTitle: string;
-      yearsExperience: string;
-      numberOfRounds: number;
-      numberOfOpenings: number;
-      requiredSkills: string[];
-    }
+    jobId: number;
     candidateId: number;
     firstName: string;
     lastName: string;
@@ -68,7 +48,7 @@ export interface User {
     phone: string;
     resumePath: string;
     keywordScore: number;
-    status: 'Applied' | 'UnderReview' | 'InterviewScheduled' | 'InProgress' | 'Selected' | 'Rejected';
+    status: 'Applied' | 'Interview Scheduled' | 'In Progress' | 'Rejected' | 'Selected';
     currentRound: number;
     createdAt: string;
     updatedAt: string;
@@ -85,7 +65,7 @@ export interface User {
     updatedAt: string;
   }
 
-  export interface Applicants {
+  export interface Applicant {
     id: number;
     name: string;
     email: string;

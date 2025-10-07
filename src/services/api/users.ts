@@ -20,18 +20,13 @@ export const getUserById = async (id: number): Promise<User> => {
   return res.data;
 };
 
-export const getInterviewers = async (): Promise<User[]> => {
-  const res = await api.get<User[]>("/admin/Users/role?role=interviewer");
-  return res.data;
-};
 export const createUser = async (userData: CreateUserRequest): Promise<User> => {
   const res = await api.post<User>("/admin/users", userData);
   return res.data;
 };
 
-export const updateUser = async (userData: Partial<User>): Promise<User> => {
-  console.log("Updating user with data:", userData);
-  const res = await api.put<User>(`/admin/users/${userData.userId}`, userData);
+export const updateUser = async (id: number, userData: Partial<User>): Promise<User> => {
+  const res = await api.put<User>(`/admin/users/${id}`, userData);
   return res.data;
 };
 

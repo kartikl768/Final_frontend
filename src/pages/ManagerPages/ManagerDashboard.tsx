@@ -5,7 +5,6 @@ import Navbar from '../../components/Navbar';
 import JobStats from '../../components/ManagerComponents/JobStats';
 import JobTable from '../../components/ManagerComponents/JobTable';
 import { useNavigate } from "react-router-dom";
-import toast from 'react-hot-toast';
 
 const ManagerDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -14,11 +13,11 @@ const ManagerDashboard: React.FC = () => {
 
   const handleDelete = (id: number) => {
     if (window.confirm("Are you sure you want to delete this job requirement?")) {
-      deleteJob(id); 
-      toast.success("Job requirement deleted successfully");
+      deleteJob(id); // ✅ Use context method
     }
   };
 
+  // ✅ Add loading check here
   if (loading) {
     return <p className="text-muted">Loading jobs...</p>;
   }

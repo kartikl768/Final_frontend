@@ -1,75 +1,52 @@
-
 import React, { useState } from 'react';
-import { User } from '../../data/index';
-
-export interface InterviewData {
-  applicationId: number;
-  interviewerId: number;
-  scheduledTime: string;
-  teamsLink: string;
-  meetingDetails: string;
-}
+import { interviewers } from '../../data/model';
 
 interface InterviewScheduleModalProps {
   show: boolean;
   onClose: () => void;
   onSchedule: (interviewData: InterviewData) => void;
   applicantName: string;
-  interviewers: User[];
-  applicationId: number;
+}
+
+export interface InterviewData {
+  date: string;
+  time: string;
+  duration: number;
+  interviewer: string;
 }
 
 const InterviewScheduleModal: React.FC<InterviewScheduleModalProps> = ({
   show,
   onClose,
   onSchedule,
-  applicantName,
-  interviewers,
-  applicationId,
+  applicantName
 }) => {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<InterviewData>({
     date: '',
     time: '',
     duration: 60,
-    interviewer: '',
-    teamsLink: '',
-    meetingDetails: '',
+    interviewer: ''
   });
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    setFormData({ ...formData, [e.target.name]: e.target.value });
-  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-
     if (formData.date && formData.time && formData.interviewer) {
-      const scheduledTime = `${formData.date}T${formData.time}`;
-      const selectedInterviewer = interviewers.find(
-        (u) => u.userId === Number(formData.interviewer)
-      );
-      // const scheduledTime = new Date(`${formData.date}T${formData.time}`).toISOString();
-
-      const interviewPayload: InterviewData = {
-        applicationId,
-        interviewerId: Number(formData.interviewer),
-        scheduledTime,
-        teamsLink: formData.teamsLink,
-        meetingDetails: formData.meetingDetails,
-      };
-console.log("Scheduling interview for applicationId:", applicationId);
-
-      onSchedule(interviewPayload);
+      onSchedule(formData);
       setFormData({
         date: '',
         time: '',
         duration: 60,
-        interviewer: '',
-        teamsLink: '',
-        meetingDetails: '',
+        interviewer: ''
       });
       onClose();
     }
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value
+    });
   };
 
   if (!show) return null;
@@ -140,34 +117,12 @@ console.log("Scheduling interview for applicationId:", applicationId);
                     required
                   >
                     <option value="">Choose interviewer...</option>
-                    {interviewers.map((user) => (
-                      <option key={user.userId} value={user.userId}>
-                        {user.firstName} {user.lastName}
+                    {interviewers.map((interviewer) => (
+                      <option key={interviewer} value={interviewer}>
+                        {interviewer}
                       </option>
                     ))}
                   </select>
-                </div>
-                <div>
-                  {/* Complete this code */}
-                  <label className="form-label">Teams Link</label>
-                  <input
-                    type="url"
-                    className="form-control"
-                    name="teamsLink"
-                    value={formData.teamsLink}
-                    onChange={handleChange}
-                    required
-                  />
-                </div>
-                <div>
-                  <label className="form-label">Meeting Details</label>
-                  <textarea
-                    className="form-control"
-                    name="meetingDetails"
-                    value={formData.meetingDetails}
-                    onChange={handleChange}
-                    required
-                  />
                 </div>
               </div>
             </div>

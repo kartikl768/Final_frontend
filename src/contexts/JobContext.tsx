@@ -92,7 +92,7 @@ export const JobProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const approveJob = async (id: number) => {
     try {
-      await reqApi.updateJobRequirement(id, { status: "Approved" });
+      await reqApi.updateJobRequirement(id, { status: "1" });
       await fetchJobs();
     } catch (err) {
       console.error("Failed to approve job", err);

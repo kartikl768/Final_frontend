@@ -13,7 +13,7 @@ interface JobRequirementDTO {
   RequiredSkills: string;
   NumberOfOpenings: number;
   NumberOfRounds: number;
-  Status: number; // 0=Pending, 1=Approved, 2=Rejected
+  Status: '0' | '1' | '2'; // 0=Pending, 1=Approved, 2=Rejected
   CreatedAt: string;
   UpdatedAt: string;
 }
@@ -24,12 +24,12 @@ const transformJobRequirement = (dto: JobRequirementDTO): JobRequirement => {
   console.log("HR Requirements API: DTO.JobTitle:", dto.JobTitle);
   console.log("HR Requirements API: DTO keys:", Object.keys(dto));
   
-  const getStatusString = (status: number): 'Pending' | 'Approved' | 'Rejected' => {
+  const getStatusString = (status: number): '0' | '1' | '2' => {
     switch (status) {
-      case 0: return 'Pending';
-      case 1: return 'Approved';
-      case 2: return 'Rejected';
-      default: return 'Pending';
+      case 0: return '0';
+      case 1: return '1';
+      case 2: return '2';
+      default: return '0';
     }
   };
 
@@ -40,14 +40,17 @@ const transformJobRequirement = (dto: JobRequirementDTO): JobRequirement => {
   }
 
   const transformed = {
-    requirementId: dto.requirementId,
-    jobTitle: dto.jobTitle,
-    jobDescription: dto.jobDescription,
-    yearsExperience: dto.yearsExperience,
-    requiredSkills: dto.requiredSkills,
-  numberOfOpenings: dto.numberOfOpenings,
-  numberOfRounds: dto.numberOfRounds,
-
+    requirementId: dto.RequirementId || 0,
+    managerId: dto.ManagerId || 0,
+    jobTitle: dto.JobTitle || 'N/A',
+    jobDescription: dto.JobDescription || 'No description',
+    yearsExperience: dto.YearsExperience || 0,
+    requiredSkills: dto.RequiredSkills || 'None',
+    numberOfOpenings: dto.NumberOfOpenings || 0,
+    numberOfRounds: dto.NumberOfRounds || 0,
+    status: getStatusString(parseInt(dto.Status)),
+    createdAt: dto.CreatedAt || new Date().toISOString(),
+    updatedAt: dto.UpdatedAt || new Date().toISOString(),
   };
   
   console.log("HR Requirements API: Transformed result:", transformed);

@@ -5,7 +5,6 @@ import Navbar from "../../components/Navbar";
 import JobForm from "../../components/ManagerComponents/JobForm";
 import { useNavigate } from "react-router-dom";
 import { useJobs } from "../../contexts/JobContext";
-import toast from "react-hot-toast";
 
 const CreateJob: React.FC = () => {
   const { user } = useAuth();
@@ -26,7 +25,7 @@ const CreateJob: React.FC = () => {
     if (result) {
       navigate("/manager");
     } else {
-      toast.error("Failed to create job. Please try again.");
+      alert("Failed to create job. Please try again.");
     }
   };
 

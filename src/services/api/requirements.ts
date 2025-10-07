@@ -14,7 +14,6 @@ export interface CreateJobRequirementRequest {
 
 export const getJobRequirements = async (): Promise<JobRequirement[]> => {
   const res = await api.get<JobRequirement[]>(BASE);
-  console.log("Printing the job requirements", res);
   return res.data;
 };
 
@@ -33,10 +32,8 @@ export const createJobRequirement = async (jobData: CreateJobRequirementRequest)
     NumberOfOpenings: jobData.numberOfOpenings,
     NumberOfRounds: jobData.numberOfRounds,
   };
-  console.log(dto);
+  
   const res = await api.post<JobRequirement>(BASE, dto);
-  console.log("111111111111111111");
-  console.log(res);
   return res.data;
 };
 

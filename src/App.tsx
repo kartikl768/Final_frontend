@@ -7,12 +7,10 @@ import { JobProvider } from './contexts/JobContext';
 import { HRProvider } from './contexts/HRContext';
 import { CandidateProvider } from './contexts/CandidateContext';
 import React from 'react';
-import { Toaster } from 'react-hot-toast';
 
 const AppContent: React.FC = () => {
   return (
     <>
-     <Toaster position="top-center" reverseOrder={false} />
       <AppRouter />
     </>
   );
@@ -20,7 +18,6 @@ const AppContent: React.FC = () => {
 
 function App() {
   return (
-    
     <AuthProvider>
       <BrowserRouter>
         <JobProvider>

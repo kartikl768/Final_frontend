@@ -1,20 +1,20 @@
-import React, { useState } from "react";
-import { useCandidate } from "../../contexts/CandidateContext";
-import { useAuth } from "../../contexts/AuthContext";
-import {
-  FileText,
-  Clock,
-  CheckCircle,
-  XCircle,
+import React, { useState } from 'react';
+import { useCandidate } from '../../contexts/CandidateContext';
+import { useAuth } from '../../contexts/AuthContext';
+import { 
+  FileText, 
+  Clock, 
+  CheckCircle, 
+  XCircle, 
   Calendar,
   User,
   Star,
   Eye,
-  Download,
-} from "lucide-react";
+  Download
+} from 'lucide-react';
 
 const ApplicationManagement: React.FC = () => {
-  const { applications, jobs,loading } = useCandidate();
+  const { applications, loading } = useCandidate();
   const { user } = useAuth();
   const [selectedApplication, setSelectedApplication] = useState<any>(null);
   const [showDetailsModal, setShowDetailsModal] = useState(false);
@@ -23,57 +23,75 @@ const ApplicationManagement: React.FC = () => {
 
   const getStatusBadge = (status: string) => {
     switch (status) {
-      case "Applied":
+      case 'Applied':
         return <span className="badge bg-primary">Applied</span>;
-      case "UnderReview":
-        return <span className="badge bg-info">UnderReview</span>;
-      case "InterviewScheduled":
-        return <span className="badge bg-success">InterviewScheduled</span>;
-      case "InProgress":
-        return <span className="badge bg-warning text-dark">InProgress</span>;
-      case "Rejected":
+      case 'Interview Scheduled':
+        return <span className="badge bg-success">Interview Scheduled</span>;
+      case 'In Progress':
+        return <span className="badge bg-warning text-dark">In Progress</span>;
+      case 'Rejected':
         return <span className="badge bg-danger">Rejected</span>;
-      case "Selected":
+      case 'Selected':
         return <span className="badge bg-success">Selected</span>;
       default:
         return <span className="badge bg-secondary">{status}</span>;
     }
   };
 
-  const filteredApplications = applications.filter((app) => {
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'Applied':
+        return <FileText size={16} className="text-primary" />;
+      case 'Interview Scheduled':
+        return <Calendar size={16} className="text-success" />;
+      case 'In Progress':
+        return <Clock size={16} className="text-warning" />;
+      case 'Rejected':
+        return <XCircle size={16} className="text-danger" />;
+      case 'Selected':
+        return <CheckCircle size={16} className="text-success" />;
+      default:
+        return <FileText size={16} className="text-secondary" />;
+    }
+  };
+
+  const filteredApplications = applications.filter(app => {
     if (filterStatus === "all") return true;
-    return app.status.replace(/\s+/g, "").toLowerCase() === filterStatus;
+    return app.status === filterStatus;
   });
 
   const sortedApplications = [...filteredApplications].sort((a, b) => {
     switch (sortBy) {
       case "newest":
-        return (
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        );
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
       case "oldest":
-        return (
-          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
-        );
+        return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
       case "status":
         return a.status.localeCompare(b.status);
       case "score":
-        return b.keywordScore - a.keywordScore;
+        return b.keyword_score - a.keyword_score;
       default:
         return 0;
     }
   });
 
   const handleViewDetails = (application: any) => {
-    
-  console.log("Printing the job details", application);
-  const job = jobs?.find(j => j.jobId === application.jobId);
-  console.log(job);
-  setSelectedApplication({ ...application, jobTitle: job?.jobTitle || 'Unknown' });
-  setShowDetailsModal(true);
-};
+    setSelectedApplication(application);
+    setShowDetailsModal(true);
+  };
 
- 
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return 'text-success';
+    if (score >= 6) return 'text-warning';
+    return 'text-danger';
+  };
+
+  const getScoreLabel = (score: number) => {
+    if (score >= 8) return 'Excellent';
+    if (score >= 6) return 'Good';
+    if (score >= 4) return 'Fair';
+    return 'Poor';
+  };
 
   if (loading) {
     return (
@@ -122,13 +140,7 @@ const ApplicationManagement: React.FC = () => {
                 <div>
                   <h6 className="mb-0">In Progress</h6>
                   <h4 className="mb-0">
-                    {
-                      applications.filter(
-                        (app) =>
-                          app.status === "InProgress" ||
-                          app.status === "InterviewScheduled"
-                      ).length
-                    }
+                    {applications.filter(app => app.status === "In Progress" || app.status === "Interview Scheduled").length}
                   </h4>
                 </div>
               </div>
@@ -144,10 +156,25 @@ const ApplicationManagement: React.FC = () => {
                 </div>
                 <div>
                   <h6 className="mb-0">Selected</h6>
+                  <h4 className="mb-0">{applications.filter(app => app.status === "Selected").length}</h4>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3">
+          <div className="card border-0 shadow-sm">
+            <div className="card-body">
+              <div className="d-flex align-items-center">
+                <div className="avatar-sm bg-info text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                  <Star size={20} />
+                </div>
+                <div>
+                  <h6 className="mb-0">Avg Score</h6>
                   <h4 className="mb-0">
-                    {
-                      applications.filter((app) => app.status === "Selected")
-                        .length
+                    {applications.length > 0 
+                      ? (applications.reduce((sum, app) => sum + app.keyword_score, 0) / applications.length).toFixed(1)
+                      : '0.0'
                     }
                   </h4>
                 </div>
@@ -167,9 +194,8 @@ const ApplicationManagement: React.FC = () => {
           >
             <option value="all">All Status</option>
             <option value="Applied">Applied</option>
-            <option value="UnderReview">Under Review</option>
-            <option value="InterviewScheduled">Interview Scheduled</option>
-            <option value="InProgress">In Progress</option>
+            <option value="Interview Scheduled">Interview Scheduled</option>
+            <option value="In Progress">In Progress</option>
             <option value="Selected">Selected</option>
             <option value="Rejected">Rejected</option>
           </select>
@@ -183,6 +209,7 @@ const ApplicationManagement: React.FC = () => {
             <option value="newest">Sort by: Newest First</option>
             <option value="oldest">Sort by: Oldest First</option>
             <option value="status">Sort by: Status</option>
+            <option value="score">Sort by: Score</option>
           </select>
         </div>
         <div className="col-md-4">
@@ -200,80 +227,83 @@ const ApplicationManagement: React.FC = () => {
             <table className="table table-hover mb-0">
               <thead className="table-light">
                 <tr>
-                  <th>Job ID</th>
-                  <th>Job Title</th>
+                  <th>Job</th>
                   <th>Applied Date</th>
                   <th>Status</th>
                   <th>Current Round</th>
+                  <th>Score</th>
                   <th>Actions</th>
                 </tr>
               </thead>
               <tbody>
-                {sortedApplications.map((application) => {
-                  // With curly braces, an explicit return is required for the JSX
-                  const job = jobs.find((j) => j.jobId === application.jobId);
-                  return (
-                    <tr key={application.applicationId}>
-                      <td>
-                        <div className="fw-medium">
-                           #{application.jobId}
+                {sortedApplications.map((application) => (
+                  <tr key={application.application_id}>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <div className="avatar-sm bg-primary text-white rounded-circle d-flex align-items-center justify-content-center me-3">
+                          <FileText size={16} />
                         </div>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <div>
-                            <strong>{application.job?.jobTitle}</strong>
+                        <div>
+                          <div className="fw-medium">
+                            Job #{application.job_id}
                           </div>
+                          <small className="text-muted">
+                            Applied {new Date(application.created_at).toLocaleDateString()}
+                          </small>
                         </div>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          <Calendar size={16} className="me-2 text-muted" />
-                          <span>
-                            {new Date(
-                              application.createdAt
-                            ).toLocaleDateString()}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="d-flex align-items-center">
-                          
-                          <span className="ms-2">
-                            {getStatusBadge(application.status)}
-                          </span>
-                        </div>
-                      </td>
-                      <td>
-                        <span className="badge bg-light text-dark">
-                          Round {application.currentRound}
+                      </div>
+                    </td>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <Calendar size={16} className="me-2 text-muted" />
+                        <span>{new Date(application.created_at).toLocaleDateString()}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        {getStatusIcon(application.status)}
+                        <span className="ms-2">{getStatusBadge(application.status)}</span>
+                      </div>
+                    </td>
+                    <td>
+                      <span className="badge bg-light text-dark">
+                        Round {application.current_round}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="d-flex align-items-center">
+                        <span className={`fw-bold ${getScoreColor(application.keyword_score)}`}>
+                          {application.keyword_score}/10
                         </span>
-                      </td>
-                      <td>
-                        <div className="d-flex gap-1">
-                          <button
-                            className="btn btn-sm btn-outline-primary"
-                            onClick={() => handleViewDetails(application)}
-                            title="View Details"
+                        <small className="text-muted ms-2">
+                          ({getScoreLabel(application.keyword_score)})
+                        </small>
+                      </div>
+                    </td>
+                    <td>
+                      <div className="d-flex gap-1">
+                        <button
+                          className="btn btn-sm btn-outline-primary"
+                          onClick={() => handleViewDetails(application)}
+                          title="View Details"
+                        >
+                          <Eye size={14} />
+                        </button>
+                        {application.resume_path && (
+                          <a
+                            href={application.resume_path}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="btn btn-sm btn-outline-secondary"
+                            title="Download Resume"
                           >
-                            <Eye size={14} />
-                          </button>
-                          {application.resumePath && (
-                            <a
-                              href={application.resumePath}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="btn btn-sm btn-outline-secondary"
-                              title="Download Resume"
-                            >
-                              <Download size={14} />
-                            </a>
-                          )}
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
+                            <Download size={14} />
+                          </a>
+                        )}
+                      </div>
+                    </td>
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
@@ -285,26 +315,24 @@ const ApplicationManagement: React.FC = () => {
           <FileText size={48} className="text-muted mb-3" />
           <h5 className="text-muted">No applications found</h5>
           <p className="text-muted">
-            {filterStatus === "all"
+            {filterStatus === "all" 
               ? "You haven't applied to any jobs yet. Start by browsing available positions."
-              : `No applications with status "${filterStatus}" found.`}
+              : `No applications with status "${filterStatus}" found.`
+            }
           </p>
         </div>
       )}
 
       {/* Application Details Modal */}
       {showDetailsModal && selectedApplication && (
-        <div
-          className="modal show d-block"
-          style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
-        >
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
           <div className="modal-dialog modal-lg">
             <div className="modal-content">
               <div className="modal-header">
                 <h5 className="modal-title">Application Details</h5>
-                <button
-                  type="button"
-                  className="btn-close"
+                <button 
+                  type="button" 
+                  className="btn-close" 
                   onClick={() => setShowDetailsModal(false)}
                 ></button>
               </div>
@@ -315,71 +343,58 @@ const ApplicationManagement: React.FC = () => {
                     <table className="table table-sm">
                       <tbody>
                         <tr>
-                          <td>
-                            <strong>Job ID:</strong>
-                          </td>
-                          <td>#{selectedApplication.jobId}</td>
+                          <td><strong>Job ID:</strong></td>
+                          <td>#{selectedApplication.job_id}</td>
                         </tr>
                         <tr>
-                          <td>
-                            <strong>Applied Date:</strong>
-                          </td>
-                          <td>
-                            {new Date(
-                              selectedApplication.createdAt
-                            ).toLocaleDateString()}
-                          </td>
+                          <td><strong>Applied Date:</strong></td>
+                          <td>{new Date(selectedApplication.created_at).toLocaleDateString()}</td>
                         </tr>
                         <tr>
-                          <td>
-                            <strong>Status:</strong>
-                          </td>
+                          <td><strong>Status:</strong></td>
                           <td>{getStatusBadge(selectedApplication.status)}</td>
                         </tr>
                         <tr>
-                          <td>
-                            <strong>Current Round:</strong>
-                          </td>
-                          <td>Round {selectedApplication.currentRound}</td>
+                          <td><strong>Current Round:</strong></td>
+                          <td>Round {selectedApplication.current_round}</td>
                         </tr>
-                      
+                        <tr>
+                          <td><strong>Score:</strong></td>
+                          <td>
+                            <span className={`fw-bold ${getScoreColor(selectedApplication.keyword_score)}`}>
+                              {selectedApplication.keyword_score}/10
+                            </span>
+                            <small className="text-muted ms-2">
+                              ({getScoreLabel(selectedApplication.keyword_score)})
+                            </small>
+                          </td>
+                        </tr>
                       </tbody>
                     </table>
                   </div>
-                  {/* <div className="col-md-6">
+                  <div className="col-md-6">
                     <h6 className="fw-bold">Personal Information</h6>
                     <table className="table table-sm">
                       <tbody>
                         <tr>
-                          <td>
-                            <strong>Name:</strong>
-                          </td>
-                          <td>
-                            {selectedApplication.firstName}{" "}
-                            {selectedApplication.lastName}
-                          </td>
+                          <td><strong>Name:</strong></td>
+                          <td>{selectedApplication.first_name} {selectedApplication.last_name}</td>
                         </tr>
                         <tr>
-                          <td>
-                            <strong>Email:</strong>
-                          </td>
+                          <td><strong>Email:</strong></td>
                           <td>{selectedApplication.email}</td>
                         </tr>
                         <tr>
-                          <td>
-                            <strong>Phone:</strong>
-                          </td>
-                          <td>{selectedApplication.phone || "Not provided"}</td>
+                          <td><strong>Phone:</strong></td>
+                          <td>{selectedApplication.phone || 'Not provided'}</td>
                         </tr>
                         <tr>
+                          <td><strong>Resume:</strong></td>
                           <td>
-                            <strong>Resume:</strong>
-                          </td>
-                          <td>
-                            {selectedApplication.resumePath ? (
-                              <a
-                                href={selectedApplication.resumePath}
-                                target="_blank"
+                            {selectedApplication.resume_path ? (
+                              <a 
+                                href={selectedApplication.resume_path} 
+                                target="_blank" 
                                 rel="noopener noreferrer"
                                 className="btn btn-sm btn-outline-primary"
                               >
@@ -393,16 +408,15 @@ const ApplicationManagement: React.FC = () => {
                         </tr>
                       </tbody>
                     </table>
-                  </div> */}
+                  </div>
                 </div>
 
-                {selectedApplication.status === "InterviewScheduled" && (
+                {selectedApplication.status === "Interview Scheduled" && (
                   <div className="mt-4">
                     <h6 className="fw-bold">Interview Information</h6>
                     <div className="alert alert-info">
                       <Calendar size={16} className="me-2" />
-                      Your interview has been scheduled. You will receive
-                      further details via email.
+                      Your interview has been scheduled. You will receive further details via email.
                     </div>
                   </div>
                 )}
@@ -411,8 +425,7 @@ const ApplicationManagement: React.FC = () => {
                   <div className="mt-4">
                     <div className="alert alert-success">
                       <CheckCircle size={16} className="me-2" />
-                      Congratulations! You have been selected for this position.
-                      HR will contact you with next steps.
+                      Congratulations! You have been selected for this position. HR will contact you with next steps.
                     </div>
                   </div>
                 )}
@@ -420,33 +433,16 @@ const ApplicationManagement: React.FC = () => {
                 {selectedApplication.status === "Rejected" && (
                   <div className="mt-4">
                     <div className="alert alert-danger">
-                      <div className="me-2" />
-                      Dear Candidate,<br/>
-                      <br></br>
-                      Thank you for your interest in the {selectedApplication.jobTitle} position at FNF India and for taking the time to interview with us. 
-                      <br/>
-                      <br>
-                      </br>
-                      We received many qualified applications, and after careful consideration, we've decided to move forward with other candidates whose skills and experience more closely align with the specific requirements of this role. 
-                      We appreciate the time and effort you invested in the application process and your interest in joining FNF India. 
-                      <br/>
-                      <br>
-                      </br>
-                      We wish you the best of luck in your job search and encourage you to keep an eye on our career page for future openings that may be a better fit. 
-                      Warmly,
-                      <br/>
-                      <br></br>
-                      The Hiring
-                      <br/>
-                      Team FNFI
+                      <XCircle size={16} className="me-2" />
+                      Unfortunately, you were not selected for this position. Keep applying to other opportunities!
                     </div>
                   </div>
                 )}
               </div>
               <div className="modal-footer">
-                <button
-                  type="button"
-                  className="btn btn-secondary"
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
                   onClick={() => setShowDetailsModal(false)}
                 >
                   Close

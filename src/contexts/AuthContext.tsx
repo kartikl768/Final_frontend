@@ -100,11 +100,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signup = async (userData: Partial<User>): Promise<boolean> => {
     try {
       const res = await authApi.registerUser({
-        email: userData.email || "",
-        password: userData.password || "",
-        firstName: userData.firstName || "",
-        lastName: userData.lastName || "",
-        phone: userData.phone || "",
+        email: userData.Email || "",
+        password: userData.Password || "",
+        firstName: userData.FirstName || "",
+        lastName: userData.LastName || "",
+        phone: userData.Phone || "",
       });
       if (res.token) {
         sessionStorage.setItem("rms_token", res.token);

@@ -2,7 +2,6 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import type { Job, Application } from "../data";
 import * as jobsApi from "../services/api/jobs";
 import * as applicationsApi from "../services/api/applications";
-import { useAuth } from "./AuthContext";
 
 interface CandidateContextType {
   // Jobs
@@ -30,25 +29,14 @@ export const CandidateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [jobsLoading, setJobsLoading] = useState(false);
   const [applicationsLoading, setApplicationsLoading] = useState(false);
 
-  const { user, isAuthenticated } = useAuth();
-    useEffect(() => {
-      const intervalId = setInterval(() => {
-        fetchApplications();
-      }, 500000);
-
-      return () => clearInterval(intervalId);
-    }, []);
   // Jobs
   const fetchJobs = async () => {
     setJobsLoading(true);
     try {
-      console.log("CandidateContext: Fetching jobs for candidate...");
       const data = await jobsApi.getJobs();
-      console.log("CandidateContext: Raw jobs data:", data);
-      setJobs(Array.isArray(data) ? data : []);
-      console.log("CandidateContext: Set jobs in state:", Array.isArray(data) ? data : []);
+      setJobs(data);
     } catch (error) {
-      console.error("CandidateContext: Failed to fetch jobs", error);
+      console.error("Failed to fetch jobs", error);
     } finally {
       setJobsLoading(false);
     }
@@ -59,20 +47,7 @@ export const CandidateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setApplicationsLoading(true);
     try {
       const data = await applicationsApi.getMyApplications();
-      const enriched = data.map((app: any) => {
-      const job = jobs.find(j => j.jobId === app.jobId);
-      return {
-        ...app,
-        jobTitle: job?.jobTitle || 'Unknown',
-        firstName: user?.firstName || '',
-        lastName: user?.lastName || '',
-        email: user?.email || '',
-        phone: user?.phone || '',
-      };
-    });
-    console.log("application data", data  );
-    console.log("User info:", user);
-      setApplications(enriched);
+      setApplications(data);
     } catch (error) {
       console.error("Failed to fetch applications", error);
     } finally {
@@ -90,17 +65,15 @@ export const CandidateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
-  const isCandidate = (role: any) => {
-    return role === 3 || role === "Candidate" || role === "3";
-  };
-
   // Initial data fetch
   useEffect(() => {
     const fetchInitialData = async () => {
       setLoading(true);
       try {
-        await fetchJobs(); // ensure jobs are loaded first
-        await fetchApplications(); // then fetch applications
+        await Promise.all([
+          fetchJobs(),
+          fetchApplications(),
+        ]);
       } catch (error) {
         console.error("Failed to fetch initial candidate data", error);
       } finally {
@@ -108,40 +81,22 @@ export const CandidateProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       }
     };
 
-    console.log("CandidateContext useEffect - isAuthenticated:", isAuthenticated, "user:", user);
-    
-    if (isAuthenticated && user) {
-      console.log("CandidateContext useEffect - user role:", user.Role);
-      if (isCandidate(user.Role)) {
-        console.log("CandidateContext - fetching data for Candidate");
+    // Only fetch data if user is Candidate
+    const userRole = sessionStorage.getItem("rms_user");
+    if (userRole) {
+      const user = JSON.parse(userRole);
+      if (user.Role === 3 || user.Role === "Candidate") {
         fetchInitialData();
       } else {
-        console.log("CandidateContext - not Candidate, setting loading to false");
+        // If not Candidate, just set loading to false
         setLoading(false);
-        // Clear data if not Candidate
-        setJobs([]);
-        setApplications([]);
       }
     } else {
-      console.log("CandidateContext - no user, setting loading to false");
+      // If no user, set loading to false
       setLoading(false);
-      // Clear data if no user
-      setJobs([]);
-      setApplications([]);
     }
-  }, [isAuthenticated, user]);
-  useEffect(() => {
-  if (jobs.length > 0 && applications.length > 0) {
-    const enriched = applications.map(app => {
-      const job = jobs.find(j => j.jobId === app.jobId);
-      return {
-        ...app,
-        jobTitle: job?.jobTitle ?? 'Unknown',
-      };
-    });
-    setApplications(enriched);
-  }
-}, [jobs]);
+  }, []);
+
   return (
     <CandidateContext.Provider
       value={{

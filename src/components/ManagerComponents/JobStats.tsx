@@ -8,12 +8,10 @@ interface Props {
 
 const JobStats: React.FC<Props> = ({ jobRequirements }) => {
   if (!jobRequirements || !Array.isArray(jobRequirements)) {
-    return <p className="text-muted">No job data available.</p>;
-  }
-
+  return <p className="text-muted">No job data available.</p>;
+}
   return (
     <div className="row mb-4">
-      {/* Total Jobs */}
       <div className="col-lg-3 col-md-6 mb-3">
         <div className="card border-0 shadow-sm">
           <div className="card-body d-flex align-items-center">
@@ -28,7 +26,6 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
         </div>
       </div>
 
-      {/* Pending Jobs */}
       <div className="col-lg-3 col-md-6 mb-3">
         <div className="card border-0 shadow-sm">
           <div className="card-body d-flex align-items-center">
@@ -37,7 +34,7 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
             </div>
             <div>
               <h5 className="card-title mb-0">
-                {jobRequirements.filter((j) => j.status == '0').length}
+                {jobRequirements.filter((j) => j.status === "Pending").length}
               </h5>
               <p className="card-text text-muted mb-0">Pending</p>
             </div>
@@ -45,7 +42,6 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
         </div>
       </div>
 
-      {/* Approved Jobs */}
       <div className="col-lg-3 col-md-6 mb-3">
         <div className="card border-0 shadow-sm">
           <div className="card-body d-flex align-items-center">
@@ -54,7 +50,7 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
             </div>
             <div>
               <h5 className="card-title mb-0">
-                {jobRequirements.filter((j) => j.status == '1').length}
+                {jobRequirements.filter((j) => j.status === "Approved").length}
               </h5>
               <p className="card-text text-muted mb-0">Approved</p>
             </div>
@@ -62,7 +58,6 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
         </div>
       </div>
 
-      {/* Total Openings */}
       <div className="col-lg-3 col-md-6 mb-3">
         <div className="card border-0 shadow-sm">
           <div className="card-body d-flex align-items-center">
@@ -71,7 +66,7 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
             </div>
             <div>
               <h5 className="card-title mb-0">
-                {jobRequirements.reduce((acc, j) => (j.numberOfOpenings || 0), 0)}
+                {jobRequirements.reduce((acc, j) => acc + j.numberOfOpenings, 0)}
               </h5>
               <p className="card-text text-muted mb-0">Total Openings</p>
             </div>
@@ -82,4 +77,4 @@ const JobStats: React.FC<Props> = ({ jobRequirements }) => {
   );
 };
 
-export default JobStats;  
+export default JobStats;
